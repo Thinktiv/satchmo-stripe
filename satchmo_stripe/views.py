@@ -1,11 +1,9 @@
 from django import http
 from django.shortcuts import render_to_response
 from django.views.decorators.cache import never_cache
-from django.template import Context, RequestContext
-from django.template.loader import get_template
+from django.template import RequestContext
 
-from satchmo_store.shop.models import Cart
-from satchmo_store.shop.models import Order, OrderPayment
+from satchmo_store.shop.models import Order
 from satchmo_utils.dynamic import lookup_url, lookup_template
 
 from livesettings import config_get_group, config_value
@@ -59,7 +57,7 @@ def stripe_pay_ship_process_form(request, contact, working_cart, payment_module,
 
 
 def pay_ship_info(request):
-    template = 'satchmo_stripe/pay_ship.html'
+    template = 'shop/checkout/pay_ship.html'
     payment_module = stripe
     form_handler = stripe_pay_ship_process_form
     result = payship.pay_ship_info_verify(request, payment_module)

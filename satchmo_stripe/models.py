@@ -1,9 +1,9 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from satchmo_store.shop.models import Cart, Order, OrderPayment
+from satchmo_store.shop.models import OrderPayment
 
-import config
+import config       # Do not Remove this Statement. Required to make config work
 PAYMENT_PROCESSOR = True
 
 class StripeToken(models.Model):

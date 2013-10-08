@@ -3,7 +3,7 @@
 
 {% block extra-head %}
 <script type="text/javascript" src="/static/js/jquery-1.4.2.js"></script>
-<script type="text/javascript" src="https://js.stripe.com/v1/"></script>
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript" src="/static/js/stripe.js"></script>
 {% endblock %}
 
@@ -16,7 +16,7 @@
 <h3>{% trans "Checkout" %}</h3>
 <div id="checkoutprogress">
 <ul class="breadcrumb">
-    <li class="first"><a href="{% url satchmo_checkout-step1 %}">{% trans "Ship/Bill" %}</a></li>
+    <li class="first"><a href="{% url 'satchmo_checkout-step1' %}">{% trans "Ship/Bill" %}</a></li>
     <li class="active">{% trans "Payment" %}</li>
     <li>{% trans "Confirmation" %}</li>
 </ul>
@@ -31,7 +31,7 @@
     </p>{% endif %}
 {% endif %}
 
-<form method="post" action="." id="stripe-payment-form">{% csrf_token %}
+<form method="post" action="" id="stripe-payment-form">{% csrf_token %}
 <table>
 
     {% block payment_table %}

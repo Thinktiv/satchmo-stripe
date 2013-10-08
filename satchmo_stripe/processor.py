@@ -4,9 +4,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from payment.modules.base import BasePaymentProcessor, ProcessorResult
 
-from forms import StripePayShipForm
-from models import StripeToken
-
 
 class PaymentProcessor(BasePaymentProcessor):
     def __init__(self, settings):
@@ -37,7 +34,7 @@ class PaymentProcessor(BasePaymentProcessor):
         except Exception, e:
             self.log_extra("Exception while lookup token %s: %s", token.stripe_token, e)
 
-        return false
+        return False
 
     def capture_payment(self, testing=False, order=None, amount=None):
         if not order:
@@ -57,7 +54,7 @@ class PaymentProcessor(BasePaymentProcessor):
 
         if not self._validate_token(token):
             payment = self.record_failure(amount=amount, transaction_id=token.payment_token,
-                    reason_code='0', details=_("Failed to Validate Stripe token."))
+                                          reason_code='0', details=_("Failed to Validate Stripe token."))
 
             return ProcessorResult(self.key, False, _("Could not validate payment authorization. Please re-enter your payment information."), payment=payment)
 
@@ -66,17 +63,17 @@ class PaymentProcessor(BasePaymentProcessor):
         try:
             amount_cents = int(amount * decimal.Decimal('100'))
             charge = stripe.Charge.create(
-                    amount = amount_cents,
-                    currency = 'usd',
-                    card = token.payment_token,
-                    description = u'Order %d for %s' % (order.id, order.contact.email))
+                amount=amount_cents,
+                currency='usd',
+                card=token.payment_token,
+                description=u'Order %d for %s' % (order.id, order.contact.email))
 
             payment = self.record_payment(order=order, amount=amount, transaction_id=charge.id, reason_code='0')
             return ProcessorResult(self.key, True, _('Success'), payment)
         except stripe.InvalidRequestError, e:
             error_code = e.json_body.get('error', {}).get('type', '')
             self.log_extra(error_code)
-            payment = self.record_failure(amount=amount, transaction_id=token.stripe_token,reason_code=error_code, deatils=e.message)
+            payment = self.record_failure(amount=amount, transaction_id=token.stripe_token, reason_code=error_code, details=e.message)
 
         if not payment:
             payment = self.record_failure(amount=amount, transaction_id=token.stripe_token, reason_code='0', details=_("Failed to create stripe charge"))
@@ -121,7 +118,7 @@ class PaymentProcessor(BasePaymentProcessor):
 #            results = ProcessorResult(self.key, True, _("Charged to Stripe"))
 
 #        return results
-        
+
 
 #    def can_authorize(self):
 #        return True
