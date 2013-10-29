@@ -48,7 +48,7 @@ def stripe_pay_ship_process_form(request, contact, working_cart, payment_module,
 
         form = _get_form(request, payment_module, *args, **kwargs)
         if not form.is_needed():
-            form.save(request, working_cart, contact, None, data={'shipping', form.shipping_dict.keys()[0]})
+            form.save(request, working_cart, contact, None, data={'shipping': form.shipping_dict.keys()[0]})
 
             url = lookup_url(payment_module, 'satchmo_checkout-step3')
             return (True, http.HttpResponseRedirect(url))
