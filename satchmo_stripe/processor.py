@@ -70,8 +70,8 @@ class PaymentProcessor(BasePaymentProcessor):
 
             payment = self.record_payment(order=order, amount=amount, transaction_id=charge.id, reason_code='0')
             return ProcessorResult(self.key, True, _('Success'), payment)
-        except stripe.InvalidRequestError, e:
-            error_code = e.json_body.get('error', {}).get('type', '')
+        except(stripe.InvalidRequestError, stripe.CardError), e:
+            error_code = e.json_body.get('error', {}).get('type', '') if e.json_body else "unknown"
             self.log_extra(error_code)
             payment = self.record_failure(amount=amount, transaction_id=token.stripe_token, reason_code=error_code, details=e.message)
 
