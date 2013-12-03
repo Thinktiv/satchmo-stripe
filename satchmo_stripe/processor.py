@@ -32,7 +32,7 @@ class PaymentProcessor(BasePaymentProcessor):
             stripe_token = stripe.Token.retrieve(token.payment_token)
             return not stripe_token.used
         except Exception, e:
-            self.log_extra("Exception while lookup token %s: %s", token.stripe_token, e)
+            self.log_extra("Exception while lookup token %s: %s", token.payment_token, e)
 
         return False
 
@@ -73,10 +73,10 @@ class PaymentProcessor(BasePaymentProcessor):
         except(stripe.InvalidRequestError, stripe.CardError), e:
             error_code = e.json_body.get('error', {}).get('type', '') if e.json_body else "unknown"
             self.log_extra(error_code)
-            payment = self.record_failure(amount=amount, transaction_id=token.stripe_token, reason_code=error_code, details=e.message)
+            payment = self.record_failure(amount=amount, transaction_id=token.payment_token, reason_code=error_code, details=e.message)
 
         if not payment:
-            payment = self.record_failure(amount=amount, transaction_id=token.stripe_token, reason_code='0', details=_("Failed to create stripe charge"))
+            payment = self.record_failure(amount=amount, transaction_id=token.payment_token, reason_code='0', details=_("Failed to create stripe charge"))
 
         return ProcessorResult(self.key, False, _('Could not charge your credit card, Please re-enter your payment information.'), payment=payment)
 
