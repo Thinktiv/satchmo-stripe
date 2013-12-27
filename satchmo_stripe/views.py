@@ -1,5 +1,6 @@
 from django import http
 from django.shortcuts import render_to_response
+from django.utils.importlib import import_module
 from django.views.decorators.cache import never_cache
 from django.template import RequestContext
 
@@ -9,7 +10,7 @@ from satchmo_utils.dynamic import lookup_url, lookup_template
 from livesettings import config_get_group, config_value
 from payment.views import confirm, payship
 from payment.config import gateway_live
-from satchmo_stripe.forms import StripePayShipForm
+from django.conf import settings
 
 import logging
 
@@ -17,9 +18,18 @@ log = logging.getLogger("satchmo_stripe.views")
 
 stripe = config_get_group('PAYMENT_SATCHMO_STRIPE')
 
+def import_class(kclass):
+    parts = kclass.rsplit('.', 1)
+    imp = import_module(parts[0])
+    return getattr(imp, parts[1])
+
+
 def stripe_pay_ship_process_form(request, contact, working_cart, payment_module, allow_skip=True, *args, **kwargs):
     def _get_form(request, payment_module, *args, **kwargs):
-        return StripePayShipForm(request, payment_module, *args, **kwargs) 
+        """
+        Make loading of form dynamic to allow modified forms
+        """
+        return import_class(getattr(settings, 'STRIPE_PAY_SHIP_FORM_CLASS', 'satchmo_stripe.forms.StripePayShipForm'))(request, payment_module, *args, **kwargs)
 
     if request.method == "POST":
         new_data = request.POST.copy()
